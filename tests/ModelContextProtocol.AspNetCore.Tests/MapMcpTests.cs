@@ -179,7 +179,7 @@ public abstract class MapMcpTests(ITestOutputHelper testOutputHelper) : KestrelI
                         {
                             Model = "test-model",
                             Role = Role.Assistant,
-                            Content = new TextContentBlock { Text = "Sampling response from client" },
+                            Contents = [new TextContentBlock { Text = "Sampling response from client" }],
                         };
                     },
                 },

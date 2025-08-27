@@ -385,7 +385,7 @@ public partial class ClientIntegrationTests : LoggedTest, IClassFixture<ClientIn
                         {
                             Model = "test-model",
                             Role = Role.Assistant,
-                            Content = new TextContentBlock { Text = "Test response" },
+                            Contents = [new TextContentBlock { Text = "Test response" }],
                         };
                     },
                 },

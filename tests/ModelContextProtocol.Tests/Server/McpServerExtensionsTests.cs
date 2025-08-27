@@ -76,7 +76,7 @@ public class McpServerExtensionsTests
 
         var resultPayload = new CreateMessageResult
         {
-            Content = new TextContentBlock { Text = "resp" },
+            Contents = [new TextContentBlock { Text = "resp" }],
             Model = "test-model",
             Role = Role.Assistant,
             StopReason = "endTurn",
@@ -113,7 +113,7 @@ public class McpServerExtensionsTests
 
         var resultPayload = new CreateMessageResult
         {
-            Content = new TextContentBlock { Text = "resp" },
+            Contents = [new TextContentBlock { Text = "resp" }],
             Model = "test-model",
             Role = Role.Assistant,
             StopReason = "endTurn",

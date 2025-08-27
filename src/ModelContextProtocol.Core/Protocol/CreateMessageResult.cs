@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ModelContextProtocol.Protocol;
@@ -14,7 +16,26 @@ public sealed class CreateMessageResult : Result
     /// Gets or sets the content of the message.
     /// </summary>
     [JsonPropertyName("content")]
-    public required ContentBlock Content { get; init; }
+    [JsonConverter(typeof(SingleOrArrayContentConverter))]
+    public required List<ContentBlock> Contents
+    {
+        get;
+        init
+        { 
+            if (value is null or [])
+            {
+                throw new ArgumentException(nameof(Contents));
+            }
+
+            field = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the content of the message.
+    /// </summary>
+    [JsonIgnore]
+    public ContentBlock Content { get => Contents.First(); init => Contents = [value]; }
 
     /// <summary>
     /// Gets or sets the name of the model that generated the message.
@@ -50,4 +71,36 @@ public sealed class CreateMessageResult : Result
     /// </summary>
     [JsonPropertyName("role")]
     public required Role Role { get; init; }
+
+    /// <summary>
+    /// Defines a converter that handles deserialization of a single <see cref="ContentBlock"/> or an array of <see cref="ContentBlock"/> into a <see cref="List{ContentBlock}"/>.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class SingleOrArrayContentConverter : McpJsonUtilities.McpContextualJsonConverter<List<ContentBlock>>
+    {
+        /// <inheritdoc/>
+        public override List<ContentBlock>? Read(ref Utf8JsonReader reader, McpSession? session, JsonSerializerOptions options)
+        {
+            if (reader.TokenType is JsonTokenType.StartObject)
+            {
+                var single = JsonSerializer.Deserialize(ref reader, options.GetTypeInfo<ContentBlock>());
+                return [single];
+            }
+
+            return JsonSerializer.Deserialize(ref reader, options.GetTypeInfo<List<ContentBlock>>());
+        }
+
+        /// <inheritdoc/>
+        public override void Write(Utf8JsonWriter writer, List<ContentBlock> value, McpSession? session, JsonSerializerOptions options)
+        {
+            if (session?.NegotiatedProtocolVersion is string version &&
+                DateTime.Parse(version) < new DateTime(2025, 09, 18)) // A hypothetical future version
+            {
+                // The negotiated protocol version is before 2025-09-18, so we need to serialize as a single object.
+                JsonSerializer.Serialize(value.Single(), options.GetTypeInfo<ContentBlock>());
+            }
+
+            JsonSerializer.Serialize(value, options.GetTypeInfo<List<ContentBlock>>());
+        }
+    }
 }
