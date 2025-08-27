@@ -62,8 +62,8 @@ public abstract partial class McpServer : McpSession, IMcpServer
         return SendRequestAsync(
             RequestMethods.SamplingCreateMessage,
             request,
-            McpJsonUtilities.JsonContext.Default.CreateMessageRequestParams,
-            McpJsonUtilities.JsonContext.Default.CreateMessageResult,
+            CreateMessageRequestParams.ModelSerializer,
+            CreateMessageResult.ModelSerializer,
             cancellationToken: cancellationToken);
     }
 

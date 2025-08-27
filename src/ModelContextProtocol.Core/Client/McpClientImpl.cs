@@ -73,12 +73,13 @@ internal sealed partial class McpClientImpl : McpClient
 
             requestHandlers.Set(
                 RequestMethods.SamplingCreateMessage,
+                this,
                 (request, _, cancellationToken) => samplingHandler(
                     request,
                     request?.ProgressToken is { } token ? new TokenProgress(this, token) : NullProgress.Instance,
                     cancellationToken),
-                McpJsonUtilities.JsonContext.Default.CreateMessageRequestParams,
-                McpJsonUtilities.JsonContext.Default.CreateMessageResult);
+                CreateMessageRequestParams.ModelSerializer,
+                CreateMessageResult.ModelSerializer);
         }
 
         if (capabilities.Roots is { } rootsCapability)

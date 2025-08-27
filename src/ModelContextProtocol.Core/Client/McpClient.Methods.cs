@@ -623,7 +623,7 @@ public abstract partial class McpClient : McpSession, IMcpClient
 
         return new()
         {
-            Content = content ?? new TextContentBlock { Text = lastMessage?.Text ?? string.Empty },
+            Contents = [content ?? new TextContentBlock { Text = lastMessage?.Text ?? string.Empty }],
             Model = chatResponse.ModelId ?? "unknown",
             Role = lastMessage?.Role == ChatRole.User ? Role.User : Role.Assistant,
             StopReason = chatResponse.FinishReason == ChatFinishReason.Length ? "maxTokens" : "endTurn",

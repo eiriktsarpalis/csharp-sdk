@@ -73,6 +73,42 @@ public abstract partial class McpSession : IMcpEndpoint, IAsyncDisposable
     }
 
     /// <summary>
+    /// Sends a JSON-RPC request and attempts to deserialize the result to <typeparamref name="TResult"/>.
+    /// </summary>
+    /// <typeparam name="TParameters">The type of the request parameters to serialize from.</typeparam>
+    /// <typeparam name="TResult">The type of the result to deserialize to.</typeparam>
+    /// <param name="method">The JSON-RPC method name to invoke.</param>
+    /// <param name="parameters">Object representing the request parameters.</param>
+    /// <param name="parametersSerializer">The request parameter serialization delegate.</param>
+    /// <param name="resultSerializer">The result deserialization delegate.</param>
+    /// <param name="requestId">The request id for the request.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> to monitor for cancellation requests. The default is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the deserialized result.</returns>
+    internal async ValueTask<TResult> SendRequestAsync<TParameters, TResult>(
+        string method,
+        TParameters parameters,
+        IMcpModelSerializer<TParameters> parametersSerializer,
+        IMcpModelSerializer<TResult> resultSerializer,
+        RequestId requestId = default,
+        CancellationToken cancellationToken = default)
+        where TResult : notnull
+    {
+        Throw.IfNullOrWhiteSpace(method);
+        Throw.IfNull(parametersSerializer);
+        Throw.IfNull(resultSerializer);
+
+        JsonRpcRequest jsonRpcRequest = new()
+        {
+            Id = requestId,
+            Method = method,
+            Params = parametersSerializer.Serialize(parameters, this),
+        };
+
+        JsonRpcResponse response = await SendRequestAsync(jsonRpcRequest, cancellationToken).ConfigureAwait(false);
+        return resultSerializer.Deserialize(response.Result, this) ?? throw new JsonException("Unexpected JSON result in response.");
+    }
+
+    /// <summary>
     /// Sends a parameterless notification to the connected session.
     /// </summary>
     /// <param name="method">The notification method name.</param>
