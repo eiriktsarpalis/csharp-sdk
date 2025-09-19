@@ -100,4 +100,10 @@ public sealed class CreateMessageRequestParams : RequestParams
     /// </summary>
     [JsonPropertyName("temperature")]
     public float? Temperature { get; init; }
+
+    /// <summary>
+    /// A <see cref="CreateMessageResult"/> serializer that wraps the source generated JsonTypeInfo for the type.
+    /// </summary>
+    internal static IMcpModelSerializer<CreateMessageRequestParams> ModelSerializer { get; } =
+        McpJsonUtilities.JsonContext.Default.CreateMessageRequestParams.ToMcpModelSerializer();
 }

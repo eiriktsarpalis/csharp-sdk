@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace ModelContextProtocol.Protocol;
 
 /// <summary>
@@ -13,8 +11,24 @@ public sealed class CreateMessageResult : Result
     /// <summary>
     /// Gets or sets the content of the message.
     /// </summary>
-    [JsonPropertyName("content")]
-    public required ContentBlock Content { get; init; }
+    public required List<ContentBlock> Contents
+    {
+        get;
+        init
+        { 
+            if (value is null or [])
+            {
+                throw new ArgumentException(nameof(Contents));
+            }
+
+            field = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the content of the message.
+    /// </summary>
+    public ContentBlock Content { get => Contents.First(); init => Contents = [value]; }
 
     /// <summary>
     /// Gets or sets the name of the model that generated the message.
@@ -28,7 +42,6 @@ public sealed class CreateMessageResult : Result
     /// enabling appropriate handling based on the model's capabilities and characteristics.
     /// </para>
     /// </remarks>
-    [JsonPropertyName("model")]
     public required string Model { get; init; }
 
     /// <summary>
@@ -42,12 +55,28 @@ public sealed class CreateMessageResult : Result
     ///   <item><term>stopSequence</term><description>A specific stop sequence was encountered during generation.</description></item>
     /// </list>
     /// </remarks>
-    [JsonPropertyName("stopReason")]
     public string? StopReason { get; init; }
 
     /// <summary>
     /// Gets or sets the role of the user who generated the message.
     /// </summary>
-    [JsonPropertyName("role")]
     public required Role Role { get; init; }
+
+    /// <summary>
+    /// A <see cref="CreateMessageResult"/> serializer that delegates to the appropriate versioned DTO serializer
+    /// </summary>
+    internal static IMcpModelSerializer<CreateMessageResult> ModelSerializer { get; } =
+        McpModelSerializer.CreateDelegatingSerializer(endpoint =>
+        {
+            if (endpoint?.NegotiatedProtocolVersion is string version &&
+                DateTime.Parse(version) < new DateTime(2025, 09, 18)) // A hypothetical future version
+            {
+                // The negotiated protocol version is before 2025-09-18, so we need to use the V1 serializer.
+                return CreateMessageResultDto_V1.ModelSerializer;
+            }
+            else
+            {
+                return CreateMessageResultDto_V2.ModelSerializer;
+            }
+        });
 }

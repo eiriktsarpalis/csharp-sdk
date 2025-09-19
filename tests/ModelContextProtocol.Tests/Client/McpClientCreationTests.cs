@@ -68,10 +68,10 @@ public class McpClientCreationTests
                     SamplingHandler = async (c, p, t) =>
                         new CreateMessageResult 
                         { 
-                            Content = new TextContentBlock { Text = "result" }, 
-                            Model = "test-model", 
-                            Role = Role.User, 
-                            StopReason = "endTurn" 
+                            Contents = [new TextContentBlock { Text = "result" }],
+                            Model = "test-model",
+                            Role = Role.User,
+                            StopReason = "endTurn"
                         },
                 },
                 Roots = new RootsCapability

@@ -83,7 +83,7 @@ public class DockerEverythingServerTests(ITestOutputHelper testOutputHelper) : L
                         {
                             Model = "test-model",
                             Role = Role.Assistant,
-                            Content = new TextContentBlock { Text = "Test response" },
+                            Contents = [new TextContentBlock { Text = "Test response" }],
                         };
                     },
                 },
