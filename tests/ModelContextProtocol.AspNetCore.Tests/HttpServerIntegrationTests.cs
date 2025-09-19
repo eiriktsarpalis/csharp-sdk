@@ -260,7 +260,7 @@ public abstract class HttpServerIntegrationTests : LoggedTest, IClassFixture<Sse
             {
                 Model = "test-model",
                 Role = Role.Assistant,
-                Content = new TextContentBlock { Text = "Test response" },
+                Contents = [new TextContentBlock { Text = "Test response" }],
             };
         };
         await using var client = await GetClientAsync(options);
